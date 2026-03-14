@@ -10,7 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     
-    # Używamy najnowszego stabilnego Pythona (3.9 i wyżej, wymagane w README)
+    # Use the latest stable Python (3.9 and higher, as required in README)
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -19,12 +19,12 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.9'
-        cache: 'pip' # Przyspiesza pobieranie paczek z PyPI za każdym pushem
+        cache: 'pip' # Speeds up downloading packages from PyPI on every push
         
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y default-jre  # JRE jest wymagane do PySpark
+        sudo apt-get install -y default-jre  # JRE is required for PySpark
         
     - name: Install Python dependencies
       run: |
@@ -37,12 +37,12 @@ jobs:
         
     - name: Lint with Ruff
       run: |
-        # Sprawdza wszystkie błędy w projekcie i go zatrzyma (exit code > 0) gdy wystąpiły błędy stylu lub składni
+        # Check all errors in the project and stop the build (exit code > 0) when style or syntax errors occur
         ruff check .
         
     - name: Run unit tests with pytest
       env:
         PYTHONPATH: src
       run: |
-        # Uruchamiamy testy z katalogu 'tests/'
+        # Run tests from the 'tests/' directory
         pytest tests/
