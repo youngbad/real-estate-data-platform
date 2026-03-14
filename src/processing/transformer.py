@@ -38,7 +38,8 @@ class RealEstateTransformer:
 
     def normalize_columns(self, df: DataFrame) -> DataFrame:
         """
-        Standardizes string formats and calculates missing derived metrics.
+        Standardizes string formats, calculates missing derived metrics,
+        and adds categorical buckets.
 
         Args:
             df (DataFrame): Cleaned DataFrame.
@@ -48,8 +49,11 @@ class RealEstateTransformer:
         """
         logger.info("Applying column normalization and derivations...")
 
+        # 0. Remove duplicates by listing_id
+        df_norm = df.dropDuplicates(["listing_id"])
+
         # 1. Standardize city and district strings (Title Case, trim whitespace)
-        df_norm = df.withColumn("city", F.initcap(F.trim(F.col("city")))).withColumn(
+        df_norm = df_norm.withColumn("city", F.initcap(F.trim(F.col("city")))).withColumn(
             "district", F.initcap(F.trim(F.col("district")))
         )
 
@@ -60,11 +64,20 @@ class RealEstateTransformer:
                 F.col("price_per_m2").isNull()
                 & F.col("price").isNotNull()
                 & F.col("area").isNotNull(),
-                (F.col("price") / F.col("area")).cast(DoubleType()),
-            ).otherwise(F.col("price_per_m2")),
+                F.round((F.col("price") / F.col("area")), 2).cast(DoubleType()),
+            ).otherwise(F.round(F.col("price_per_m2"), 2)),
         )
 
-        # 3. Handle data staleness or fill simple nulls
+        # 3. Create area_bucket (0-40, 40-60, 60-80, 80+)
+        df_norm = df_norm.withColumn(
+            "area_bucket",
+            F.when(F.col("area") <= 40, "0-40")
+            .when((F.col("area") > 40) & (F.col("area") <= 60), "40-60")
+            .when((F.col("area") > 60) & (F.col("area") <= 80), "60-80")
+            .otherwise("80+"),
+        )
+
+        # 4. Handle data staleness or fill simple nulls
         # If building_year is missing, we might leave it as null, but ensure it's an integer
         # (covered by schema, but good practice to explicitly state business rules).
 

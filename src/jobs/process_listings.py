@@ -50,12 +50,12 @@ def main():
     logger.info("Transformed Data Preview:")
     df_transformed.show(truncate=False)
 
-    # 4. Load: Save cleaned data as Parquet
-    processed_data_dir = os.getenv("PROCESSED_DATA_DIR", os.path.join(os.getcwd(), "data", "processed", "parquet"))
-    logger.info(f"Saving transformed data as Parquet to: {processed_data_dir}")
+    # 4. Load: Save cleaned data as Parquet directly to curated zone
+    curated_data_dir = os.getenv("CURATED_DATA_DIR", os.path.join(os.getcwd(), "data", "curated", "parquet"))
+    logger.info(f"Saving transformed data as Parquet to: {curated_data_dir}")
     try:
-        df_transformed.write.mode("overwrite").parquet(processed_data_dir)
-        logger.info("Successfully saved clean data to Parquet format.")
+        df_transformed.write.mode("overwrite").parquet(curated_data_dir)
+        logger.info("Successfully saved curated data to Parquet format.")
     except Exception as e:
         logger.error(f"Failed to save Parquet data: {e}")
 

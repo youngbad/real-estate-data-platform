@@ -85,11 +85,9 @@ real-estate-data-platform/
    Run the specific scrapers or json loader to pull fresh data.
    
 2. **Process and Transform (ETL):**
-   Execute PySpark jobs to process raw JSON into curated Parquet datasets:
+   Execute the PySpark job to process raw JSON into curated Parquet datasets:
    ```bash
    python src/jobs/process_listings.py
-   # or
-   python src/jobs/transform_parquet.py
    ```
 
 3. **Load to Data Warehouse:**
