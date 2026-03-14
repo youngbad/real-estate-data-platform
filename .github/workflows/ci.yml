@@ -31,6 +31,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest pytest-mock
         pip install -r requirements.txt
+        # Safely install airflow separately specifying a constraint file, which bypasses C++ compile issues
+        pip install apache-airflow==2.7.2 --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.7.2/constraints-3.9.txt"
         pip install ruff
         
     - name: Lint with Ruff

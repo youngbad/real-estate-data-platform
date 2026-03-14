@@ -51,6 +51,8 @@ def require_data(query: str):
 st.title("🏢 Real Estate Data Platform - BI Dashboard")
 st.markdown("Analyzing real estate listings from the PostgreSQL Star Schema.")
 
+tab1, tab2 = st.tabs(["📊 Analytics", "🔍 Search Listings"])
+
 # --- Filters ---
 st.sidebar.header("Filters")
 # Note: For a true dynamic dashboard, you'd pull filter options from the DB.
@@ -59,40 +61,41 @@ selected_city = st.sidebar.selectbox(
     "Select City", ["All", "Warsaw", "Krakow", "Gdansk", "Wroclaw", "Poznan"]
 )
 
-base_where_clause = ""
+base_where_clause = "WHERE 1=1"
 if selected_city != "All":
-    base_where_clause = f"WHERE l.city = '{selected_city}'"
+    base_where_clause += f" AND l.city = '{selected_city}'"
 
-# =====================================================================
-# Top Level KPIs
-# =====================================================================
-kpi_query = f"""
-    SELECT 
-        COUNT(f.listing_sk) AS total_listings,
-        ROUND(AVG(f.price_per_m2), 2) AS avg_price_m2,
-        ROUND(AVG(f.price), 2) AS avg_total_price
-    FROM fact_listings f
-    JOIN dim_location l ON f.location_id = l.location_id
-    {base_where_clause}
-"""
-
-kpi_data = require_data(kpi_query)
-
-if not kpi_data.empty:
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Listings", f"{kpi_data['total_listings'][0]:,}")
-    col2.metric("Avg Price per m²", f"{kpi_data['avg_price_m2'][0]:,} PLN")
-    col3.metric("Avg Total Price", f"{kpi_data['avg_total_price'][0]:,} PLN")
-
-st.markdown("---")
-
-# =====================================================================
-# Visualizations
-# =====================================================================
-colA, colB = st.columns(2)
-
-# --- 1. Trends over time ---
-with colA:
+with tab1:
+    # =====================================================================
+    # Top Level KPIs
+    # =====================================================================
+    kpi_query = f"""
+        SELECT 
+            COUNT(f.listing_sk) AS total_listings,
+            ROUND(AVG(f.price_per_m2), 2) AS avg_price_m2,
+            ROUND(AVG(f.price), 2) AS avg_total_price
+        FROM fact_listings f
+        JOIN dim_location l ON f.location_id = l.location_id
+        {base_where_clause}
+    """
+    
+    kpi_data = require_data(kpi_query)
+    
+    if not kpi_data.empty:
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Total Listings", f"{kpi_data['total_listings'][0]:,}")
+        col2.metric("Avg Price per m²", f"{kpi_data['avg_price_m2'][0]:,} PLN")
+        col3.metric("Avg Total Price", f"{kpi_data['avg_total_price'][0]:,} PLN")
+    
+    st.markdown("---")
+    
+    # =====================================================================
+    # Visualizations
+    # =====================================================================
+    colA, colB = st.columns(2)
+    
+    # --- 1. Trends over time ---
+    with colA:
     st.subheader("Price Trends Over Time")
     trend_query = f"""
         SELECT 
@@ -216,8 +219,7 @@ with colD:
         FROM fact_listings f
         JOIN dim_property p ON f.property_id = p.property_id
         JOIN dim_location l ON f.location_id = l.location_id
-        {base_where_clause}
-        WHERE p.rooms IS NOT NULL
+        {base_where_clause} AND p.rooms IS NOT NULL
         GROUP BY p.rooms
         ORDER BY p.rooms
     """
