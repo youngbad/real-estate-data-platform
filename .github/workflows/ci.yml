@@ -1,0 +1,46 @@
+name: Data Platform CI
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    # Używamy najnowszego stabilnego Pythona (3.9 i wyżej, wymagane w README)
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        cache: 'pip' # Przyspiesza pobieranie paczek z PyPI za każdym pushem
+        
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y default-jre  # JRE jest wymagane do PySpark
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-mock
+        pip install -r requirements.txt
+        pip install ruff
+        
+    - name: Lint with Ruff
+      run: |
+        # Sprawdza wszystkie błędy w projekcie i go zatrzyma (exit code > 0) gdy wystąpiły błędy stylu lub składni
+        ruff check .
+        
+    - name: Run unit tests with pytest
+      env:
+        PYTHONPATH: src
+      run: |
+        # Uruchamiamy testy z katalogu 'tests/'
+        pytest tests/
