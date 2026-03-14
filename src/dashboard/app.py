@@ -8,6 +8,7 @@ from sqlalchemy.exc import OperationalError
 # Configure page
 st.set_page_config(page_title="Real Estate BI Dashboard", page_icon="🏢", layout="wide")
 
+
 # =====================================================================
 # Database Connection
 # =====================================================================
@@ -22,9 +23,10 @@ def get_engine():
     db_host = os.getenv("DB_HOST", "localhost")
     db_port = os.getenv("DB_PORT", "5432")
     db_name = os.getenv("DB_NAME", "real_estate_db")
-    
+
     conn_str = f"postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
     return create_engine(conn_str)
+
 
 @st.cache_data(ttl=600)  # Cache data for 10 minutes
 def require_data(query: str):
@@ -34,11 +36,14 @@ def require_data(query: str):
         with engine.connect() as conn:
             return pd.read_sql(query, conn)
     except OperationalError as e:
-        st.error(f"⚠️ Could not connect to PostgreSQL. Ensure it's running and credentials are correct. Error: {e}")
+        st.error(
+            f"⚠️ Could not connect to PostgreSQL. Ensure it's running and credentials are correct. Error: {e}"
+        )
         st.stop()
     except Exception as e:
         st.error(f"⚠️ SQL Execution Error: {e}")
         st.stop()
+
 
 # =====================================================================
 # Layout & UI
@@ -48,9 +53,11 @@ st.markdown("Analyzing real estate listings from the PostgreSQL Star Schema.")
 
 # --- Filters ---
 st.sidebar.header("Filters")
-# Note: For a true dynamic dashboard, you'd pull filter options from the DB. 
+# Note: For a true dynamic dashboard, you'd pull filter options from the DB.
 # We'll leave placeholders here where you can hook up dynamic `WHERE` clauses.
-selected_city = st.sidebar.selectbox("Select City", ["All", "Warsaw", "Krakow", "Gdansk", "Wroclaw", "Poznan"])
+selected_city = st.sidebar.selectbox(
+    "Select City", ["All", "Warsaw", "Krakow", "Gdansk", "Wroclaw", "Poznan"]
+)
 
 base_where_clause = ""
 if selected_city != "All":
@@ -100,19 +107,32 @@ with colA:
         GROUP BY d.year, d.month, d.month_name
         ORDER BY d.year, d.month
     """
-    
+
     trend_df = require_data(trend_query)
-    
+
     if not trend_df.empty:
         # Create a display column for time
-        trend_df["Year-Month"] = trend_df["year"].astype(str) + "-" + trend_df["month"].astype(str).str.zfill(2)
-        
-        chart_trend = alt.Chart(trend_df).mark_line(point=True).encode(
-            x=alt.X("Year-Month:T", title="Date"),
-            y=alt.Y("avg_price_m2:Q", title="Avg Price per m² (PLN)", scale=alt.Scale(zero=False)),
-            tooltip=["Year-Month", "avg_price_m2"]
-        ).properties(height=350)
-        
+        trend_df["Year-Month"] = (
+            trend_df["year"].astype(str)
+            + "-"
+            + trend_df["month"].astype(str).str.zfill(2)
+        )
+
+        chart_trend = (
+            alt.Chart(trend_df)
+            .mark_line(point=True)
+            .encode(
+                x=alt.X("Year-Month:T", title="Date"),
+                y=alt.Y(
+                    "avg_price_m2:Q",
+                    title="Avg Price per m² (PLN)",
+                    scale=alt.Scale(zero=False),
+                ),
+                tooltip=["Year-Month", "avg_price_m2"],
+            )
+            .properties(height=350)
+        )
+
         st.altair_chart(chart_trend, use_container_width=True)
     else:
         st.info("No data available for trends.")
@@ -131,16 +151,21 @@ with colB:
         GROUP BY l.city
         ORDER BY avg_price_m2 DESC
     """
-    
+
     loc_df = require_data(loc_query)
-    
+
     if not loc_df.empty:
-        chart_loc = alt.Chart(loc_df).mark_bar(color="#4c78a8").encode(
-            x=alt.X("city:N", sort="-y", title="City"),
-            y=alt.Y("avg_price_m2:Q", title="Avg Price per m² (PLN)"),
-            tooltip=["city", "avg_price_m2"]
-        ).properties(height=350)
-        
+        chart_loc = (
+            alt.Chart(loc_df)
+            .mark_bar(color="#4c78a8")
+            .encode(
+                x=alt.X("city:N", sort="-y", title="City"),
+                y=alt.Y("avg_price_m2:Q", title="Avg Price per m² (PLN)"),
+                tooltip=["city", "avg_price_m2"],
+            )
+            .properties(height=350)
+        )
+
         st.altair_chart(chart_loc, use_container_width=True)
     else:
         st.info("No data available for locations.")
@@ -164,15 +189,20 @@ with colC:
         GROUP BY p.area_bucket
         ORDER BY p.area_bucket
     """
-    
+
     area_df = require_data(area_query)
-    
+
     if not area_df.empty:
-        chart_area = alt.Chart(area_df).mark_bar(color="#f58518").encode(
-            x=alt.X("area_bucket:N", title="Area Size (m²)"),
-            y=alt.Y("avg_price_m2:Q", title="Avg Price per m² (PLN)"),
-            tooltip=["area_bucket", "avg_price_m2"]
-        ).properties(height=300)
+        chart_area = (
+            alt.Chart(area_df)
+            .mark_bar(color="#f58518")
+            .encode(
+                x=alt.X("area_bucket:N", title="Area Size (m²)"),
+                y=alt.Y("avg_price_m2:Q", title="Avg Price per m² (PLN)"),
+                tooltip=["area_bucket", "avg_price_m2"],
+            )
+            .properties(height=300)
+        )
         st.altair_chart(chart_area, use_container_width=True)
 
 
@@ -191,14 +221,18 @@ with colD:
         GROUP BY p.rooms
         ORDER BY p.rooms
     """
-    
-    room_df = require_data(room_query)
-    
-    if not room_df.empty:
-        chart_room = alt.Chart(room_df).mark_bar(color="#e45756").encode(
-            x=alt.X("rooms:O", title="Number of Rooms"),
-            y=alt.Y("avg_price_m2:Q", title="Avg Price per m² (PLN)"),
-            tooltip=["rooms", "avg_price_m2"]
-        ).properties(height=300)
-        st.altair_chart(chart_room, use_container_width=True)
 
+    room_df = require_data(room_query)
+
+    if not room_df.empty:
+        chart_room = (
+            alt.Chart(room_df)
+            .mark_bar(color="#e45756")
+            .encode(
+                x=alt.X("rooms:O", title="Number of Rooms"),
+                y=alt.Y("avg_price_m2:Q", title="Avg Price per m² (PLN)"),
+                tooltip=["rooms", "avg_price_m2"],
+            )
+            .properties(height=300)
+        )
+        st.altair_chart(chart_room, use_container_width=True)

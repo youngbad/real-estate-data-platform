@@ -1,6 +1,5 @@
 import logging
 import os
-from typing import Optional
 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import (
@@ -14,8 +13,7 @@ from pyspark.sql.types import (
 
 # Configure basic logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -32,21 +30,23 @@ class RawListingLoader:
     @staticmethod
     def get_listing_schema() -> StructType:
         """
-        Defines the updated expected schema for raw real estate listings, 
+        Defines the updated expected schema for raw real estate listings,
         matching Otodom, OLX, and GUS scrapper output.
         """
-        return StructType([
-            StructField("listing_id", StringType(), False),
-            StructField("city", StringType(), True),
-            StructField("district", StringType(), True),
-            StructField("price", DoubleType(), True),
-            StructField("price_per_m2", DoubleType(), True),
-            StructField("area", DoubleType(), True),
-            StructField("rooms", IntegerType(), True),
-            StructField("floor", IntegerType(), True),
-            StructField("building_year", IntegerType(), True),
-            StructField("date_scraped", TimestampType(), True)
-        ])
+        return StructType(
+            [
+                StructField("listing_id", StringType(), False),
+                StructField("city", StringType(), True),
+                StructField("district", StringType(), True),
+                StructField("price", DoubleType(), True),
+                StructField("price_per_m2", DoubleType(), True),
+                StructField("area", DoubleType(), True),
+                StructField("rooms", IntegerType(), True),
+                StructField("floor", IntegerType(), True),
+                StructField("building_year", IntegerType(), True),
+                StructField("date_scraped", TimestampType(), True),
+            ]
+        )
 
     def load_json_directory(self, input_dir: str) -> DataFrame:
         if not os.path.exists(input_dir):
@@ -58,15 +58,14 @@ class RawListingLoader:
 
         try:
             df = (
-                self.spark.read
-                .option("mode", "FAILFAST")
+                self.spark.read.option("mode", "FAILFAST")
                 .schema(schema)
                 .json(input_dir)
             )
-            
+
             record_count = df.count()
             logger.info(f"Successfully loaded {record_count} records from {input_dir}")
-            
+
             return df
 
         except Exception as e:
