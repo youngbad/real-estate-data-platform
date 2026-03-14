@@ -5,7 +5,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-316192?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.32.0-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 
-A modern end-to-end Data Engineering pipeline designed to ingest, process, and analyze real estate market data. This project showcases my ability to design scalable ETL workflows, process big data utilizing Apache Spark, manage data warehouses with PostgreSQL, and build interactive BI dashboard applications.
+A modern end-to-end Data Engineering pipeline designed to ingest, process, and analyze real estate market data. This project showcases ability to design scalable ETL workflows, process big data utilizing Apache Spark, manage data warehouses with PostgreSQL, and build interactive BI dashboard applications.
 
 ---
 
