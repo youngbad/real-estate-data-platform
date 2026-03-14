@@ -115,10 +115,4 @@ real-estate-data-platform/
 
 ---
 
-## 👨‍💻 Author
-
-**Jakub**  
-*Data Engineer*  
-[LinkedIn](https://linkedin.com/in/yourprofile) | [GitHub](https://github.com/yourusername) | [Portfolio](https://yourportfolio.com)
-
 *If you found this project interesting or have any questions about the data engineering architecture, feel free to reach out!*
