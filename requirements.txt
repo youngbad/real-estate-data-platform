@@ -7,7 +7,7 @@ pyspark==3.5.0
 
 # Database
 psycopg2-binary==2.9.9
-sqlalchemy==2.0.21
+sqlalchemy==1.4.51
 
 # BI / Dashboard
 streamlit==1.32.0
