@@ -4,6 +4,7 @@
 [![Apache PySpark](https://img.shields.io/badge/PySpark-3.5.0-E25A1C?logo=apachespark&logoColor=white)](https://spark.apache.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-316192?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.32.0-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Apache Airflow](https://img.shields.io/badge/Apache%20Airflow-2.x-017CEE?logo=apacheairflow&logoColor=white)](https://airflow.apache.org/)
 
 A modern end-to-end Data Engineering pipeline designed to ingest, process, and analyze real estate market data. This project showcases ability to design scalable ETL workflows, process big data utilizing Apache Spark, manage data warehouses with PostgreSQL, and build interactive BI dashboard applications.
 
@@ -25,7 +26,7 @@ The pipeline is structured into distinct layers corresponding to industry-standa
 - **Data Processing (ETL/ELT):** `PySpark`, `Pandas`
 - **Database / Storage:** `PostgreSQL`, `SQLAlchemy`, `psycopg2`
 - **Data Visualization (BI):** `Streamlit`, `Altair`
-- **Orchestration (Upcoming):** `Apache Airflow`
+- **Orchestration:** `Apache Airflow`
 
 ---
 
@@ -33,6 +34,8 @@ The pipeline is structured into distinct layers corresponding to industry-standa
 
 ```text
 real-estate-data-platform/
+├── dags/                  # Apache Airflow DAG definitions
+│   └── real_estate_etl.py # Daily ETL orchestration DAG
 ├── data/                  # Local Data Lake (Medallion architecture)
 │   ├── raw/               # Landing zone for JSON files
 │   ├── processed/         # Cleaned Parquet files
@@ -104,9 +107,55 @@ real-estate-data-platform/
 
 ---
 
+## ⚙️ Orchestration with Apache Airflow
+
+The pipeline is fully automated using **Apache Airflow**. The DAG definition lives in `dags/real_estate_etl.py`.
+
+### DAG: `real_estate_etl_pipeline`
+
+| Property | Value |
+|---|---|
+| **Schedule** | Daily (`@daily`) |
+| **Start Date** | 2026-03-15 |
+| **Catchup** | Disabled |
+| **Tags** | `real_estate`, `etl` |
+| **Retries** | 1 (5-minute retry delay) |
+
+### Task Graph
+
+```
+initialize_database → scrape_data → transform_data → load_to_postgres
+```
+
+| Task ID | Script | Description |
+|---|---|---|
+| `initialize_database` | `src/jobs/init_db.py` | Creates PostgreSQL tables (idempotent) |
+| `scrape_data` | `src/ingestion/scraper.py` | Scrapes raw listings and saves JSON to `data/raw/` |
+| `transform_data` | `src/processing/transformer.py` | PySpark ETL: cleans JSON → Parquet in `data/processed/` & `data/curated/` |
+| `load_to_postgres` | `src/jobs/load_to_postgres.py` | Loads curated Parquet data into PostgreSQL |
+
+### Running Airflow Locally
+
+1. **Set the project root** in `dags/real_estate_etl.py` (update `PROJECT_ROOT` to your local path).
+
+2. **Initialize the Airflow metadata database** (first time only):
+   ```bash
+   airflow db init
+   ```
+
+3. **Start the Airflow webserver and scheduler** (in separate terminals):
+   ```bash
+   airflow webserver --port 8080
+   airflow scheduler
+   ```
+
+4. **Open the Airflow UI** at [http://localhost:8080](http://localhost:8080), find the `real_estate_etl_pipeline` DAG, and enable it to begin scheduled runs (or trigger it manually).
+
+---
+
 ## 🔮 Future Enhancements
 
-- [ ] Implement **Apache Airflow** DAGs to automate the daily ETL processes.
+- [x] Implement **Apache Airflow** DAGs to automate the daily ETL processes.
 - [ ] Migrate data lake storage from local file system to **AWS S3** or **GCS**.
 - [ ] Integrate **dbt (data build tool)** for advanced SQL transformations in the data warehouse.
 - [ ] Containerize the entire stack using **Docker** and `docker-compose`.
