@@ -10,15 +10,15 @@ jobs:
   test:
     runs-on: ubuntu-latest
     
-    # Use the latest stable Python (3.9 and higher, as required in README)
+    # Use the latest stable Python matching local environment
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       
-    - name: Set up Python 3.9
+    - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
-        python-version: '3.9'
+        python-version: '3.11'
         cache: 'pip' # Speeds up downloading packages from PyPI on every push
         
     - name: Install system dependencies
@@ -32,7 +32,7 @@ jobs:
         pip install "pytest<8.0.0" pytest-mock
         pip install -r requirements.txt
         # Safely install airflow separately specifying a constraint file, which bypasses C++ compile issues
-        pip install apache-airflow==2.7.2 --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.7.2/constraints-3.9.txt"
+        pip install apache-airflow==2.7.2 --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.7.2/constraints-3.11.txt"
         pip install ruff
         
     - name: Lint with Ruff
