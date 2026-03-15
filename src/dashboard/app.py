@@ -50,7 +50,7 @@ def require_data(query: str):
 st.title("🏢 Real Estate Data Platform - BI Dashboard")
 st.markdown("Analyzing real estate listings from the PostgreSQL Star Schema.")
 
-tab1, tab2 = st.tabs(["📊 Analytics", "🔍 Search Listings"])
+tab1, tab2, tab3 = st.tabs(["📊 Analytics", "🔍 Search Listings", "📈 Macro Indicators"])
 
 # --- Filters ---
 st.sidebar.header("Filters")
