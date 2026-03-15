@@ -325,7 +325,7 @@ with tab3:
     """
     macro_df = require_data(macro_query)
     
-    if not macro_df.empty:
+    if macro_df is not None and not macro_df.empty:
         col1, col2 = st.columns(2)
         
         with col1:
