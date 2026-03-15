@@ -35,6 +35,9 @@ class PostgresDataLoader:
         # Ensure date_scraped is datetime
         df["date_scraped"] = pd.to_datetime(df["date_scraped"])
 
+        # Extract Source Name Early
+        df["source_name"] = df["listing_id"].apply(lambda x: x.split("_")[0])
+
         # 1. Load dim_date
         logger.info("Processing dim_date...")
         df["date_id"] = df["date_scraped"].dt.strftime("%Y%m%d").astype(int)
@@ -78,10 +81,12 @@ class PostgresDataLoader:
         )
         df = df.merge(db_locations, on=["city", "district"], how="left")
 
-        # 3. Load dim_property
+        # 3. Load dim_property (Only for non-GUS data)
         logger.info("Processing dim_property...")
+        df_listings = df[df["source_name"] != "gus"].copy()
+        
         dim_property = (
-            df[["rooms", "building_year", "area_bucket"]].drop_duplicates().copy()
+            df_listings[["rooms", "building_year", "area_bucket"]].drop_duplicates().copy()
         )
         try:
             dim_property.to_sql(
@@ -110,7 +115,6 @@ class PostgresDataLoader:
 
         # 4. Load dim_source
         logger.info("Processing dim_source...")
-        df["source_name"] = df["listing_id"].apply(lambda x: x.split("_")[0])
         dim_source = df[["source_name"]].drop_duplicates().copy()
         try:
             dim_source.to_sql(
@@ -128,9 +132,11 @@ class PostgresDataLoader:
         )
         df = df.merge(db_sources, on=["source_name"], how="left")
 
-        # 5. Load fact_listings
+        # 5. Load fact_listings (Only for non-GUS data)
         logger.info("Processing fact_listings...")
-        fact_listings = df[
+        df_listings = df[df["source_name"] != "gus"].copy()
+        
+        fact_listings = df_listings[
             [
                 "listing_id",
                 "date_id",
@@ -157,9 +163,45 @@ class PostgresDataLoader:
                 index=False,
                 method="multi",
             )
-            logger.info("Successfully loaded data into PostgreSQL!")
+            logger.info("Successfully loaded data into fact_listings!")
         except Exception as e:
             logger.error(f"Failed to insert into fact_listings: {e}")
+            
+        # 6. Load fact_macro_indicators (Only for GUS data)
+        logger.info("Processing fact_macro_indicators...")
+        df_macro = df[df["source_name"] == "gus"].copy()
+        
+        if not df_macro.empty:
+            fact_macro = df_macro[
+                [
+                    "listing_id",
+                    "date_id",
+                    "location_id",
+                    "source_id",
+                    "date_scraped",
+                    "price_per_m2",
+                ]
+            ].copy()
+            
+            fact_macro = fact_macro.rename(
+                columns={
+                    "listing_id": "indicator_natural_key",
+                    "date_scraped": "date_recorded",
+                    "price_per_m2": "average_price_per_m2"
+                }
+            )
+            
+            try:
+                fact_macro.to_sql(
+                    "fact_macro_indicators",
+                    self.engine,
+                    if_exists="append",
+                    index=False,
+                    method="multi",
+                )
+                logger.info("Successfully loaded data into fact_macro_indicators!")
+            except Exception as e:
+                logger.error(f"Failed to insert into fact_macro_indicators: {e}")
 
 
 if __name__ == "__main__":

@@ -80,9 +80,12 @@ with tab1:
     
     if not kpi_data.empty:
         col1, col2, col3 = st.columns(3)
+        avg_price_m2 = kpi_data['avg_price_m2'][0]
+        avg_total_price = kpi_data['avg_total_price'][0]
+        
         col1.metric("Total Listings", f"{kpi_data['total_listings'][0]:,}")
-        col2.metric("Avg Price per m²", f"{kpi_data['avg_price_m2'][0]:,.2f} PLN")
-        col3.metric("Avg Total Price", f"{kpi_data['avg_total_price'][0]:,.2f} PLN")
+        col2.metric("Avg Price per m²", f"{avg_price_m2:,.2f} PLN" if avg_price_m2 is not None else "N/A")
+        col3.metric("Avg Total Price", f"{avg_total_price:,.2f} PLN" if avg_total_price is not None else "N/A")
         
     st.markdown("---")
     
@@ -301,3 +304,47 @@ with tab2:
                 )
             else:
                 st.warning("No properties found matching these criteria. Try adjusting your filters.")
+
+
+with tab3:
+    st.header("📈 Macroeconomic Indicators (GUS)")
+    st.markdown("Contextual macroeconomic data for real estate analysis.")
+    
+    macro_query = """
+        SELECT 
+            d.year,
+            d.month,
+            l.city,
+            l.voivodeship,
+            f.indicator_name,
+            f.indicator_value
+        FROM fact_macro_indicators f
+        JOIN dim_date d ON f.date_id = d.date_id
+        JOIN dim_location l ON f.location_id = l.location_id
+        ORDER BY d.year DESC, d.month DESC
+    """
+    macro_df = require_data(macro_query)
+    
+    if not macro_df.empty:
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.subheader("Raw Data Table")
+            st.dataframe(macro_df, use_container_width=True, hide_index=True)
+            
+        with col2:
+            st.subheader("Indicator Trends")
+            # Create a Year-Month column for plotting
+            macro_df["Year-Month"] = macro_df["year"].astype(str) + "-" + macro_df["month"].astype(str).str.zfill(2)
+            
+            # Simple bar chart
+            chart_macro = alt.Chart(macro_df).mark_bar().encode(
+                x=alt.X('Year-Month:T', title='Date'),
+                y=alt.Y('indicator_value:Q', title='Value'),
+                color='indicator_name:N',
+                tooltip=['city', 'indicator_name', 'indicator_value', 'Year-Month']
+            ).properties(height=400)
+            
+            st.altair_chart(chart_macro, use_container_width=True)
+    else:
+        st.info("No macroeconomic data available for the selected filters.")

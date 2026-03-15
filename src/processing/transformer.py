@@ -25,7 +25,11 @@ class RealEstateTransformer:
         logger.info("Starting data cleaning process...")
 
         # 1. Drop rows where both price and area are missing (unusable records)
-        df_cleaned = df.dropna(subset=["price", "area"], how="all")
+        # BUT keep GUS data which legitimately has null price and area
+        df_cleaned = df.filter(
+            (F.col("listing_id").startswith("gus_")) |
+            (F.col("price").isNotNull() | F.col("area").isNotNull())
+        )
 
         # 2. Filter out unrealistic outliers (e.g., negative prices or area, absurdly high rooms)
         df_cleaned = df_cleaned.filter(

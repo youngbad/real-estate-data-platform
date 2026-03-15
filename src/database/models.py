@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    Column, Integer, String, Float, Boolean, Date, DateTime, 
+    Column, Integer, String, Boolean, Date, DateTime, 
     Numeric, ForeignKey, UniqueConstraint
 )
 from sqlalchemy.orm import declarative_base, relationship
@@ -67,3 +67,22 @@ class FactListing(Base):
     location = relationship("DimLocation")
     property = relationship("DimProperty")
     source = relationship("DimSource")
+
+class FactMacroIndicator(Base):
+    __tablename__ = 'fact_macro_indicators'
+    
+    macro_sk = Column(Integer, primary_key=True, autoincrement=True)
+    indicator_natural_key = Column(String(100), nullable=False, unique=True)
+    
+    date_id = Column(Integer, ForeignKey('dim_date.date_id'), nullable=False, index=True)
+    location_id = Column(Integer, ForeignKey('dim_location.location_id'), nullable=False, index=True)
+    source_id = Column(Integer, ForeignKey('dim_source.source_id'), nullable=False)
+    
+    date_recorded = Column(DateTime, nullable=False)
+    average_price_per_m2 = Column(Numeric(15, 2), nullable=False)
+    
+    # Relationships
+    date = relationship("DimDate")
+    location = relationship("DimLocation")
+    source = relationship("DimSource")
+
