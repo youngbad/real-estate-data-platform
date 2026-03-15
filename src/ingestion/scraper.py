@@ -9,6 +9,8 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
+from src.schemas.listing import ListingSchema
+
 # Configure basic logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -85,7 +87,7 @@ class BaseScraper(ABC):
 
 
 def generate_mock_data(source_name: str, count: int) -> List[Dict[str, Any]]:
-    """Helper function to generate a large volume of mock data for 2025."""
+    """Helper function to generate a large volume of mock data for 2020-2025."""
     cities = ["Warsaw", "Krakow", "Gdansk", "Wroclaw", "Poznan", "Lodz"]
     districts = [
         "Centrum",
@@ -106,44 +108,62 @@ def generate_mock_data(source_name: str, count: int) -> List[Dict[str, Any]]:
         price = round(random.uniform(300000.0, 3000000.0), 2)
         price_per_m2 = round(price / area, 2)
 
-        # Spread dates throughout 2025
-        base_date = datetime(2025, 1, 1)
+        # Spread dates throughout 2020-2025
+        base_date = datetime(2020, 1, 1)
         random_date = base_date + timedelta(
-            days=random.randint(0, 364),
+            days=random.randint(0, 5 * 365),
             hours=random.randint(0, 23),
             minutes=random.randint(0, 59),
         )
 
         is_gus = source_name == "gus"
-        records.append(
-            {
-                "listing_id": f"{source_name}_{uuid.uuid4().hex[:8]}",
-                "city": random.choice(cities),
-                "district": random.choice(districts),
-                "price": None if is_gus else price,
-                "price_per_m2": price_per_m2,
-                "area": None if is_gus else area,
-                "rooms": None if is_gus else random.randint(1, 5),
-                "floor": None if is_gus else random.randint(0, 12),
-                "building_year": None if is_gus else random.randint(1950, 2025),
-                "date_scraped": random_date.isoformat() + "Z",
-            }
-        )
+        uuid_short = uuid.uuid4().hex[:8]
+        listing_id = f"{source_name}_{uuid_short}"
+
+        if source_name == "otodom":
+            url = f"https://www.otodom.pl/pl/oferty/sprzedaz/mieszkanie/{uuid_short}"
+        elif source_name == "olx":
+            url = f"https://www.olx.pl/d/oferta/mieszkanie-{uuid_short}.html"
+        else:
+            url = f"https://api.stat.gov.pl/dane/{uuid_short}"
+            
+        # Mock logic: hide links for listings older than Jan 1st 2025 to simulate them being "inactive" / archived
+        if random_date < datetime(2025, 1, 1):
+            url = None
+
+        raw_data = {
+            "listing_id": listing_id,
+            "city": random.choice(cities),
+            "district": random.choice(districts),
+            "price": None if is_gus else price,
+            "price_per_m2": price_per_m2,
+            "area": None if is_gus else area,
+            "rooms": None if is_gus else random.randint(1, 5),
+            "floor": None if is_gus else random.randint(0, 12),
+            "building_year": None if is_gus else random.randint(1950, 2025),
+            "url": url,
+            "date_scraped": random_date.isoformat() + "Z",
+        }
+        
+        # Validate data with Pydantic
+        validated_data = ListingSchema(**raw_data).model_dump()
+        records.append(validated_data)
+
     return records
 
 
 class OtodomScraper(BaseScraper):
     def parse_data(self, content: str) -> List[Dict[str, Any]]:
         logger.info(
-            "Extracting Otodom listings... (Generating 500 mock records for 2025)"
+            "Extracting Otodom listings... (Generating 5000 mock records for 2020-2025)"
         )
-        return generate_mock_data("otodom", count=500)
+        return generate_mock_data("otodom", count=5000)
 
 
 class OlxScraper(BaseScraper):
     def parse_data(self, content: str) -> List[Dict[str, Any]]:
-        logger.info("Extracting OLX listings... (Generating 400 mock records for 2025)")
-        return generate_mock_data("olx", count=400)
+        logger.info("Extracting OLX listings... (Generating 4000 mock records for 2020-2025)")
+        return generate_mock_data("olx", count=4000)
 
 
 class GusDataFetcher(BaseScraper):
@@ -153,9 +173,9 @@ class GusDataFetcher(BaseScraper):
 
     def parse_data(self, content: str) -> List[Dict[str, Any]]:
         logger.info(
-            "Extracting GUS public data... (Generating 50 mock records for 2025)"
+            "Extracting GUS public data... (Generating 1000 mock records for 2020-2025)"
         )
-        return generate_mock_data("gus", count=50)
+        return generate_mock_data("gus", count=1000)
 
 
 if __name__ == "__main__":

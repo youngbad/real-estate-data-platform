@@ -44,6 +44,7 @@ class RawListingLoader:
                 StructField("rooms", IntegerType(), True),
                 StructField("floor", IntegerType(), True),
                 StructField("building_year", IntegerType(), True),
+                StructField("url", StringType(), True),
                 StructField("date_scraped", TimestampType(), True),
             ]
         )

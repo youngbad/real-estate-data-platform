@@ -141,6 +141,7 @@ class PostgresDataLoader:
                 "price",
                 "area",
                 "price_per_m2",
+                "url",
             ]
         ].copy()
 

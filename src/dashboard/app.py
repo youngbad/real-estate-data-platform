@@ -263,12 +263,13 @@ with tab2:
         SELECT 
             l.city AS "City",
             l.district AS "District",
-            p.property_type AS "Type",
+            p.building_year AS "Building Year",
             p.rooms AS "Rooms",
-            p.area_sqm AS "Area (m²)",
+            f.area AS "Area (m²)",
             f.price AS "Price (PLN)",
             f.price_per_m2 AS "Price/m²",
-            s.url AS "URL"
+            s.source_name AS "Source",
+            f.url AS "URL"
         FROM fact_listings f
         JOIN dim_location l ON f.location_id = l.location_id
         JOIN dim_property p ON f.property_id = p.property_id

@@ -1,3 +1,9 @@
+DROP TABLE IF EXISTS fact_listings CASCADE;
+DROP TABLE IF EXISTS dim_source CASCADE;
+DROP TABLE IF EXISTS dim_property CASCADE;
+DROP TABLE IF EXISTS dim_location CASCADE;
+DROP TABLE IF EXISTS dim_date CASCADE;
+
 -- ====================================================================
 -- PostgreSQL Star Schema DDL for Real Estate Data Platform
 -- ====================================================================
@@ -64,6 +70,9 @@ CREATE TABLE fact_listings (
     price NUMERIC(15, 2) NOT NULL,
     area NUMERIC(10, 2) NOT NULL,
     price_per_m2 NUMERIC(15, 2) NOT NULL,
+    
+    -- Metadata limits
+    url VARCHAR(500),
     
     -- Constraint to avoid duplicating the same natural representation multiple times
     UNIQUE (listing_natural_key)

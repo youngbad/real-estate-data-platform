@@ -34,25 +34,20 @@ def create_database():
         cur.close()
         conn.close()
 
-        # Connect to the new database and initialize the schema
+        # Connect to the new database and initialize the schema using SQLAlchemy
         print("Initializing schema...")
-        conn = psycopg2.connect(
-            user=user, password=password, host=host, port=port, dbname=db_name
-        )
-        cur = conn.cursor()
-
-        schema_path = os.path.join(
-            os.path.dirname(__file__), "..", "..", "sql", "schema.sql"
-        )
-        with open(schema_path, "r") as f:
-            schema_sql = f.read()
-
-        cur.execute(schema_sql)
-        conn.commit()
-        print("Schema initialized successfully.")
-
-        cur.close()
-        conn.close()
+        from sqlalchemy import create_engine
+        from src.database.models import Base
+        
+        db_url = f"postgresql://{user}:{password}@{host}:{port}/{db_name}"
+        engine = create_engine(db_url)
+        
+        # This will create all tables based on our ORM models (it won't drop existing ones automatically)
+        # To make it equivalent to the DROP in schema.sql, we can either drop all first or just let it recreate
+        Base.metadata.drop_all(engine)
+        Base.metadata.create_all(engine)
+        
+        print("Schema initialized successfully via SQLAlchemy ORM.")
 
     except Exception as e:
         print(f"Error: {e}")
