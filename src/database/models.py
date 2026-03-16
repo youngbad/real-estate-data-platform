@@ -9,7 +9,7 @@ Base = declarative_base()
 class DimDate(Base):
     __tablename__ = 'dim_date'
     
-    date_id = Column(Integer, primary_key=True)
+    date_id = Column(Integer, primary_key=True, autoincrement=False)
     full_date = Column(Date, nullable=False)
     year = Column(Integer, nullable=False)
     month = Column(Integer, nullable=False)

@@ -1,9 +1,9 @@
-import os
 import pandas as pd
 import streamlit as st
 import altair as alt
-from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
+
+from database.connection import create_sql_server_engine
 
 # Configure page
 st.set_page_config(page_title="Real Estate BI Dashboard", page_icon="🏢", layout="wide")
@@ -14,21 +14,14 @@ st.set_page_config(page_title="Real Estate BI Dashboard", page_icon="🏢", layo
 @st.cache_resource
 def get_engine():
     """
-    Creates a SQLAlchemy engine connected to PostgreSQL.
+    Creates a SQLAlchemy engine connected to SQL Server.
     Configured via environment variables (with localhost fallback).
     """
-    db_user = os.getenv("DB_USER", "postgres")
-    db_pass = os.getenv("DB_PASSWORD", "postgres")
-    db_host = os.getenv("DB_HOST", "localhost")
-    db_port = os.getenv("DB_PORT", "5432")
-    db_name = os.getenv("DB_NAME", "real_estate_db")
-
-    conn_str = f"postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
-    return create_engine(conn_str)
+    return create_sql_server_engine()
 
 
 @st.cache_data(ttl=600)  # Cache data for 10 minutes
-def require_data(query: str):
+def require_data(query: str) -> pd.DataFrame:
     """Executes a SQL query and returns a pandas DataFrame."""
     try:
         engine = get_engine()
@@ -36,12 +29,14 @@ def require_data(query: str):
             return pd.read_sql(query, conn)
     except OperationalError as e:
         st.error(
-            f"⚠️ Could not connect to PostgreSQL. Ensure it's running and credentials are correct. Error: {e}"
+            f"⚠️ Could not connect to SQL Server. Ensure Azure SQL credentials are correct and the firewall allows access. Error: {e}"
         )
         st.stop()
+        return pd.DataFrame()
     except Exception as e:
         st.error(f"⚠️ SQL Execution Error: {e}")
         st.stop()
+        return pd.DataFrame()
 
 
 # =====================================================================
@@ -49,7 +44,7 @@ def require_data(query: str):
 # =====================================================================
 def main():
     st.title("🏢 Real Estate Data Platform - BI Dashboard")
-    st.markdown("Analyzing real estate listings from the PostgreSQL Star Schema.")
+    st.markdown("Analyzing real estate listings from the Azure SQL star schema.")
 
     tab1, tab2, tab3 = st.tabs(["📊 Analytics", "🔍 Search Listings", "📈 Macro Indicators"])
 

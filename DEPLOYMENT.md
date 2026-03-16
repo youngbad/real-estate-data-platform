@@ -10,7 +10,7 @@ The Streamlit dashboard (`src/dashboard/app.py`) is automatically deployed to St
 
 1. **GitHub Repository**: Your code must be in a GitHub repository
 2. **Streamlit Cloud Account**: Sign up at [share.streamlit.io](https://share.streamlit.io/)
-3. **PostgreSQL Database**: A PostgreSQL database accessible from the internet (required for the dashboard to function)
+3. **Azure SQL Database**: A SQL Server database accessible from the internet (required for the dashboard to function)
 
 ## Deployment Setup
 
@@ -26,20 +26,28 @@ The Streamlit dashboard (`src/dashboard/app.py`) is automatically deployed to St
 
 ### Step 2: Configure Environment Variables
 
-The dashboard requires the following environment variables to connect to your PostgreSQL database:
+The dashboard requires the following environment variables to connect to your Azure SQL database:
 
 1. In your Streamlit Cloud app settings, click on "Secrets"
 2. Add the following secrets in TOML format:
 
 ```toml
+DB_HOST = "real-estate-app.database.windows.net"
+DB_PORT = "1433"
+DB_NAME = "real_estate_db"
+DB_DRIVER = "ODBC Driver 18 for SQL Server"
+DB_AUTH_MODE = "sql"
+
+# For SQL authentication:
 DB_USER = "your_database_user"
 DB_PASSWORD = "your_database_password"
-DB_HOST = "your_database_host"
-DB_PORT = "5432"
-DB_NAME = "real_estate_db"
+
+# For Entra ID on local machine use:
+# DB_AUTH_MODE = "entra"
+# DB_ENTRA_CREDENTIAL = "azure_cli"
 ```
 
-**Important**: Replace the values with your actual database credentials. The database must be accessible from the internet.
+**Important**: Replace the values with your actual Azure SQL credentials. The database must be accessible from the internet and your firewall must allow Streamlit Cloud access.
 
 ### Step 3: Verify Deployment
 
@@ -88,7 +96,7 @@ Python dependencies including:
 
 ## Database Requirements
 
-The dashboard requires a PostgreSQL database with the following schema:
+The dashboard requires an Azure SQL database with the following schema:
 
 **Dimension Tables:**
 - `dim_date` - Date dimension
@@ -131,11 +139,19 @@ To test the dashboard locally before deployment:
 
 ```bash
 # Set environment variables
+export DB_HOST="real-estate-app.database.windows.net"
+export DB_PORT="1433"
+export DB_NAME="real_estate_db"
+export DB_DRIVER="ODBC Driver 18 for SQL Server"
+
+# SQL auth mode:
+export DB_AUTH_MODE="sql"
 export DB_USER="your_user"
 export DB_PASSWORD="your_password"
-export DB_HOST="localhost"
-export DB_PORT="5432"
-export DB_NAME="real_estate_db"
+
+# Entra ID mode for local machine:
+# export DB_AUTH_MODE="entra"
+# export DB_ENTRA_CREDENTIAL="azure_cli"
 
 # Run the dashboard
 streamlit run src/dashboard/app.py

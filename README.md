@@ -2,11 +2,11 @@
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Apache PySpark](https://img.shields.io/badge/PySpark-3.5.0-E25A1C?logo=apachespark&logoColor=white)](https://spark.apache.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-316192?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Azure SQL](https://img.shields.io/badge/Azure%20SQL-Database-0078D4?logo=microsoftazure&logoColor=white)](https://azure.microsoft.com/products/azure-sql/database)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.32.0-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![Apache Airflow](https://img.shields.io/badge/Apache%20Airflow-2.x-017CEE?logo=apacheairflow&logoColor=white)](https://airflow.apache.org/)
 
-A modern end-to-end Data Engineering pipeline designed to ingest, process, and analyze real estate market data. This project showcases ability to design scalable ETL workflows, process big data utilizing Apache Spark, manage data warehouses with PostgreSQL, and build interactive BI dashboard applications.
+A modern end-to-end Data Engineering pipeline designed to ingest, process, and analyze real estate market data. This project showcases ability to design scalable ETL workflows, process big data utilizing Apache Spark, manage data warehouses with Azure SQL Database, and build interactive BI dashboard applications.
 
 ---
 
@@ -16,7 +16,7 @@ The pipeline is structured into distinct layers corresponding to industry-standa
 
 1. **Ingestion Layer (Scraping):** Automated Python scrapers collect real estate listings from multiple sources (e.g., OLX, Otodom, GUS) and save the raw data in JSON format within the `data/raw` zone.
 2. **Processing Layer (PySpark Transformation):** Apache Spark processes the raw unstructured JSON. It applies data cleaning, normalizes schemas, and performs type conversions. The output is stored in optimized columnar format (Parquet) under `data/processed` and `data/curated`.
-3. **Storage Layer (Data Warehouse):** Curated Parquet data is loaded into a relational PostgreSQL database modeling the properties and market trends.
+3. **Storage Layer (Data Warehouse):** Curated Parquet data is loaded into a relational SQL Server database modeling the properties and market trends.
 4. **Presentation Layer (Dashboard):** A Streamlit application provides an interactive BI interface to visualize housing market trends, average prices, and geospatial data insights.
 
 ## 🛠️ Tech Stack
@@ -24,7 +24,8 @@ The pipeline is structured into distinct layers corresponding to industry-standa
 - **Languages:** Python, SQL
 - **Data Ingestion/Web Scraping:** `requests`, `BeatifulSoup4`
 - **Data Processing (ETL/ELT):** `PySpark`, `Pandas`
-- **Database / Storage:** `PostgreSQL`, `SQLAlchemy`, `psycopg2`
+- **Database / Storage:** `Azure SQL Database`, `SQLAlchemy`, `pymssql`
+- **Database / Storage:** `Azure SQL Database`, `SQLAlchemy`, `pyodbc`
 - **Data Visualization (BI):** `Streamlit`, `Altair`
 - **Orchestration:** `Apache Airflow`
 
@@ -41,7 +42,7 @@ real-estate-data-platform/
 │   ├── processed/         # Cleaned Parquet files
 │   └── curated/           # Business-level aggregated Parquet data
 ├── sql/                   # Database scripts
-│   └── schema.sql         # PostgreSQL schema definition
+│   └── schema.sql         # SQL Server schema definition
 ├── src/                   # Source code
 │   ├── dashboard/         # Streamlit BI application
 │   ├── ingestion/         # Scrapers and API data loaders
@@ -58,7 +59,7 @@ real-estate-data-platform/
 ### Prerequisites
 - Python 3.9+
 - Java 11+ (Required for Apache Spark)
-- PostgreSQL Server up and running
+- Azure SQL Database or local SQL Server running
 
 ### Installation
 
@@ -76,7 +77,7 @@ real-estate-data-platform/
    ```
 
 3. **Initialize the Database Schema:**
-   *(Ensure you have configured your local Postgres credentials inside the script)*
+   *(Ensure you have configured your SQL Server credentials in environment variables before running the script)*
    ```bash
    python src/jobs/init_db.py
    ```
@@ -94,9 +95,32 @@ real-estate-data-platform/
    ```
 
 3. **Load to Data Warehouse:**
-   Push the curated Parquet data into Postgres:
+   Push the curated Parquet data into SQL Server:
    ```bash
-   python src/jobs/load_to_postgres.py
+   python src/jobs/load_to_sqlserver.py
+   ```
+
+5. **Migrate Existing PostgreSQL Data to Azure SQL:**
+   If you already have data in a local PostgreSQL instance, export it directly into Azure SQL:
+   ```bash
+   export SOURCE_DB_USER="postgres"
+   export SOURCE_DB_PASSWORD="postgres"
+   export SOURCE_DB_HOST="localhost"
+   export SOURCE_DB_PORT="5432"
+   export SOURCE_DB_NAME="real_estate_db"
+
+   export TARGET_DB_USER="your_azure_sql_user"
+   export TARGET_DB_PASSWORD="your_azure_sql_password"
+   export TARGET_DB_HOST="real-estate-app.database.windows.net"
+   export TARGET_DB_PORT="1433"
+   export TARGET_DB_NAME="real_estate_db"
+   export TARGET_DB_DRIVER="ODBC Driver 18 for SQL Server"
+   export TARGET_DB_AUTH_MODE="entra"
+   export TARGET_DB_ENTRA_CREDENTIAL="azure_cli"
+
+   az login
+
+   python src/jobs/migrate_postgres_to_azure_sql.py
    ```
 
 4. **Launch the Dashboard:**
@@ -124,15 +148,15 @@ The pipeline is fully automated using **Apache Airflow**. The DAG definition liv
 ### Task Graph
 
 ```
-initialize_database → scrape_data → transform_data → load_to_postgres
+initialize_database → scrape_data → transform_data → load_to_sqlserver
 ```
 
 | Task ID | Script | Description |
 |---|---|---|
-| `initialize_database` | `src/jobs/init_db.py` | Creates PostgreSQL tables (idempotent) |
+| `initialize_database` | `src/jobs/init_db.py` | Creates SQL Server tables (idempotent) |
 | `scrape_data` | `src/ingestion/scraper.py` | Scrapes raw listings and saves JSON to `data/raw/` |
 | `transform_data` | `src/processing/transformer.py` | PySpark ETL: cleans JSON → Parquet in `data/processed/` & `data/curated/` |
-| `load_to_postgres` | `src/jobs/load_to_postgres.py` | Loads curated Parquet data into PostgreSQL |
+| `load_to_sqlserver` | `src/jobs/load_to_sqlserver.py` | Loads curated Parquet data into SQL Server |
 
 ### Running Airflow Locally
 

@@ -8,15 +8,15 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from dashboard.app import get_engine, require_data
 
-@patch('dashboard.app.create_engine')
-def test_dashboard_get_engine(mock_create_engine):
+@patch('dashboard.app.create_sql_server_engine')
+def test_dashboard_get_engine(mock_create_sql_server_engine):
     """Test if Streamlit dashboard initializes the database connection properly."""
     # st.cache_resource requires resetting or clearing in testing
     st.cache_resource.clear()
     engine = get_engine()
     
-    mock_create_engine.assert_called_once()
-    assert engine == mock_create_engine.return_value
+    mock_create_sql_server_engine.assert_called_once()
+    assert engine == mock_create_sql_server_engine.return_value
 
 @patch('dashboard.app.pd.read_sql')
 @patch('dashboard.app.get_engine')
