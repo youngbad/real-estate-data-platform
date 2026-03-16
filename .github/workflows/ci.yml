@@ -46,3 +46,7 @@ jobs:
       run: |
         # Run tests from the 'tests/' directory
         pytest tests/
+
+    # Deployment to Streamlit Cloud is handled automatically by Streamlit Cloud's GitHub integration
+    # When tests pass and code is merged to main/master, Streamlit Cloud will automatically deploy
+    # See DEPLOYMENT.md for setup instructions
