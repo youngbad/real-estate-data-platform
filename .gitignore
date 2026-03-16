@@ -29,3 +29,12 @@ ENV/
 .DS_Store
 .vscode/
 .idea/
+
+# Airflow artifacts
+airflow.cfg
+airflow.db
+webserver_config.py
+airflow-webserver.pid
+logs/
+error.log
+
