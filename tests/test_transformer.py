@@ -45,7 +45,8 @@ def test_normalize_columns(spark):
         Row(listing_id="id_2", city="Krakow", district="Centrum", price=800000.0, area=65.0, price_per_m2=None, building_year=None)
     ]
     
-    df = spark.createDataFrame(data)
+    schema = "listing_id STRING, city STRING, district STRING, price DOUBLE, area DOUBLE, price_per_m2 DOUBLE, building_year INT"
+    df = spark.createDataFrame(data, schema=schema)
     norm_df = transformer.normalize_columns(df)
     
     results = {row.listing_id: row for row in norm_df.collect()}
