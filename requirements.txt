@@ -21,6 +21,8 @@ altair==5.2.0
 
 # Orchestration (for later)
 apache-airflow==2.7.2
+# Keep CI on Python 3.9 using prebuilt linux wheels; newer releases can require Bazel source builds.
+google-re2==1.1
 
 # Testing & Dev
 pytest>=7.4.3
