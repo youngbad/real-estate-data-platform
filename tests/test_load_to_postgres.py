@@ -2,12 +2,9 @@ import os
 import sys
 from unittest.mock import patch
 
-# Add src folder to Python path to import modules in tests
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+from src.jobs.load_to_sqlserver import SQLServerDataLoader
 
-from jobs.load_to_sqlserver import SQLServerDataLoader
-
-@patch('jobs.load_to_sqlserver.create_sql_server_engine')
+@patch('src.jobs.load_to_sqlserver.create_sql_server_engine')
 def test_sql_server_data_loader_init(mock_create_sql_server_engine):
     """Test proper initialization of the SQL Server data loader class."""
     # Set up test environment variables
@@ -23,8 +20,8 @@ def test_sql_server_data_loader_init(mock_create_sql_server_engine):
     mock_create_sql_server_engine.assert_called_once_with()
 
 
-@patch('jobs.load_to_sqlserver.pd.read_parquet')
-@patch('jobs.load_to_sqlserver.create_sql_server_engine')
+@patch('src.jobs.load_to_sqlserver.pd.read_parquet')
+@patch('src.jobs.load_to_sqlserver.create_sql_server_engine')
 def test_load_data_handles_missing_file(_mock_create_sql_server_engine, mock_read_parquet, caplog):
     """Test whether the system gracefully fails when the Parquet file is missing."""
     mock_read_parquet.side_effect = Exception("File missing!")

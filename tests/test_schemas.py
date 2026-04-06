@@ -1,9 +1,5 @@
 import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
-
-from schemas.listing import ListingSchema
+from src.schemas.listing import ListingSchema
 
 def test_listing_schema_valid_data():
     """Test that valid listing data is correctly parsed into a ListingSchema object."""
