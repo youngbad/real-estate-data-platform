@@ -1,8 +1,7 @@
-import pytest
 import os
 import json
-from unittest.mock import patch, mock_open
-from src.ingestion.scraper import BaseScraper, OtodomScraper, GusDataFetcher
+from unittest.mock import patch
+from src.ingestion.scraper import BaseScraper, OtodomScraper
 
 class DummyScraper(BaseScraper):
     def parse_data(self, content):
