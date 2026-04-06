@@ -1,6 +1,6 @@
 import os
 
-from jobs.load_to_sqlserver import SQLServerDataLoader
+from src.jobs.load_to_sqlserver import SQLServerDataLoader
 
 PostgresDataLoader = SQLServerDataLoader
 
