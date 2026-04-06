@@ -24,7 +24,6 @@ The pipeline is structured into distinct layers corresponding to industry-standa
 - **Languages:** Python, SQL
 - **Data Ingestion/Web Scraping:** `requests`, `BeatifulSoup4`
 - **Data Processing (ETL/ELT):** `PySpark`, `Pandas`
-- **Database / Storage:** `Azure SQL Database`, `SQLAlchemy`, `pymssql`
 - **Database / Storage:** `Azure SQL Database`, `SQLAlchemy`, `pyodbc`
 - **Data Visualization (BI):** `Streamlit`, `Altair`
 - **Orchestration:** `Apache Airflow`
