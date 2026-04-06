@@ -3,7 +3,7 @@ import streamlit as st
 import altair as alt
 from sqlalchemy.exc import OperationalError
 
-from database.connection import create_sql_server_engine
+from src.database.connection import create_sql_server_engine
 
 # Configure page
 st.set_page_config(page_title="Real Estate BI Dashboard", page_icon="🏢", layout="wide")
