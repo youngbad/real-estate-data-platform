@@ -10,6 +10,8 @@ pyspark==3.5.0
 
 # Database
 psycopg2-binary==2.9.9
+pyodbc==4.0.34
+azure-identity==1.17.1
 sqlalchemy==1.4.51
 
 # BI / Dashboard
@@ -19,3 +21,10 @@ altair==5.2.0
 
 # Orchestration (for later)
 apache-airflow==2.7.2
+# Keep CI on Python 3.9 using prebuilt linux wheels; newer releases can require Bazel source builds.
+google-re2==1.1
+
+# Testing & Dev
+pytest>=7.4.3
+pytest-cov>=4.1.0
+requests-mock>=1.11.0

@@ -45,10 +45,10 @@ with DAG(
         bash_command=f'cd {PROJECT_ROOT} && PYTHONPATH=. python3 src/processing/transformer.py',
     )
 
-    # Task 4: Load Data to PostgreSQL
+    # Task 4: Load Data to SQL Server
     load_data_task = BashOperator(
-        task_id='load_to_postgres',
-        bash_command=f'cd {PROJECT_ROOT} && PYTHONPATH=. python3 src/jobs/load_to_postgres.py',
+        task_id='load_to_sqlserver',
+        bash_command=f'cd {PROJECT_ROOT} && PYTHONPATH=. python3 src/jobs/load_to_sqlserver.py',
     )
 
     # Define the task execution order

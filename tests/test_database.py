@@ -1,9 +1,4 @@
-import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
-
-from database.models import DimDate, DimLocation, FactListing
+from src.database.models import DimDate, DimLocation, FactListing
 
 def test_models_have_table_names():
     """Test that all SQLAlchemy models have the correct __tablename__ defined."""
