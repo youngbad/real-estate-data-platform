@@ -113,12 +113,13 @@ real-estate-data-platform/
    export TARGET_DB_PASSWORD="your_azure_sql_password"
    export TARGET_DB_HOST="real-estate-app.database.windows.net"
    export TARGET_DB_PORT="1433"
-   export TARGET_DB_NAME="real_estate_db"
+   export TARGET_DB_NAME="real-estate-app-db"
    export TARGET_DB_DRIVER="ODBC Driver 18 for SQL Server"
    export TARGET_DB_AUTH_MODE="entra"
    export TARGET_DB_ENTRA_CREDENTIAL="azure_cli"
 
    az login
+For Streamlit Cloud deployment, use SQL authentication secrets instead of the local Entra ID flow.
 
    python src/jobs/migrate_postgres_to_azure_sql.py
    ```

@@ -21,3 +21,8 @@ altair==5.2.0
 
 # Orchestration (for later)
 apache-airflow==2.7.2
+
+# Testing & Dev
+pytest>=7.4.3
+pytest-cov>=4.1.0
+requests-mock>=1.11.0

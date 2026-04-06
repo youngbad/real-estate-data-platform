@@ -34,7 +34,7 @@ The dashboard requires the following environment variables to connect to your Az
 ```toml
 DB_HOST = "real-estate-app.database.windows.net"
 DB_PORT = "1433"
-DB_NAME = "real_estate_db"
+DB_NAME = "real-estate-app-db"
 DB_DRIVER = "ODBC Driver 18 for SQL Server"
 DB_AUTH_MODE = "sql"
 
@@ -47,7 +47,7 @@ DB_PASSWORD = "your_database_password"
 # DB_ENTRA_CREDENTIAL = "azure_cli"
 ```
 
-**Important**: Replace the values with your actual Azure SQL credentials. The database must be accessible from the internet and your firewall must allow Streamlit Cloud access.
+**Important**: Replace the values with your actual Azure SQL credentials. For Streamlit Cloud, use `DB_AUTH_MODE = "sql"` with a SQL login. The local Entra ID flow using `az login` is intended for local runs and migration jobs, not for Streamlit Cloud deployment.
 
 ### Step 3: Verify Deployment
 
@@ -141,7 +141,7 @@ To test the dashboard locally before deployment:
 # Set environment variables
 export DB_HOST="real-estate-app.database.windows.net"
 export DB_PORT="1433"
-export DB_NAME="real_estate_db"
+export DB_NAME="real-estate-app-db"
 export DB_DRIVER="ODBC Driver 18 for SQL Server"
 
 # SQL auth mode:
@@ -149,7 +149,7 @@ export DB_AUTH_MODE="sql"
 export DB_USER="your_user"
 export DB_PASSWORD="your_password"
 
-# Entra ID mode for local machine:
+# Entra ID mode for local machine only:
 # export DB_AUTH_MODE="entra"
 # export DB_ENTRA_CREDENTIAL="azure_cli"
 
