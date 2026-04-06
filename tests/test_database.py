@@ -1,4 +1,3 @@
-import os
 from src.database.models import DimDate, DimLocation, FactListing
 
 def test_models_have_table_names():

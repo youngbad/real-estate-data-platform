@@ -1,4 +1,3 @@
-import os
 from src.schemas.listing import ListingSchema
 
 def test_listing_schema_valid_data():

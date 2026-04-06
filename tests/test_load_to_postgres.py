@@ -1,5 +1,4 @@
 import os
-import sys
 from unittest.mock import patch
 
 from src.jobs.load_to_sqlserver import SQLServerDataLoader
